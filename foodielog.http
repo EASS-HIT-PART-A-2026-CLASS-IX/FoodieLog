@@ -1,0 +1,14 @@
+### Create Restaurant
+POST http://127.0.0.1:8000/restaurants
+Content-Type: application/json
+
+{
+  "name": "Taizu",
+  "cuisine": "Asian Fusion",
+  "city": "Tel Aviv",
+  "rating": 5,
+  "status": "Want to Go"
+}
+
+### Get All Restaurants
+GET http://127.0.0.1:8000/restaurants
