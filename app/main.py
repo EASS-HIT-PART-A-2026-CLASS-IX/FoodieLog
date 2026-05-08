@@ -1,8 +1,11 @@
-from fastapi import FastAPI, HTTPException, status
-from .database import SettingsDep, init_db
-from .models import RestaurantCreate, RestaurantRead
-from .dependencies import RepositoryDep
 from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+
+from .database import SettingsDep, init_db
+from .dependencies import RepositoryDep
+from .models import RestaurantCreate, RestaurantRead
 
 
 @asynccontextmanager
@@ -11,6 +14,14 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="FoodieLog API", version="2.0.0", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8501", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/health", tags=["diagnostics"])
 def health_check(settings: SettingsDep):
