@@ -70,3 +70,6 @@ The test suite uses `pytest` and `TestClient` to verify all CRUD operations and 
 ```bash
 uv run pytest tests/ -v
 ```
+
+## AI Assistance
+This project was developed with the assistance of AI. It was used to brainstorm an original concept, scaffold the FastAPI routes, generate the Pydantic/SQLModel models with custom string normalization, and build the Pytest suite. Additionally, AI was used to help transition the architecture from an in-memory dictionary to a persistent SQLite database, including setting up the Alembic workflow and migration scripts. All AI-generated code was verified locally by running `pytest` and testing the Swagger UI manually.
