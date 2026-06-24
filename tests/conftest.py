@@ -4,6 +4,8 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from app.main import app
 from app.database import get_session
+from app.security import create_access_token
+from app.config import Settings
 
 
 @pytest.fixture(name="engine")
@@ -38,3 +40,24 @@ def client_fixture(session: Session) -> Generator[TestClient, None, None]:
         yield test_client
 
     app.dependency_overrides.clear()
+
+
+def register_token(client: TestClient, email: str, name: str = "Tester", password: str = "pass123") -> str:
+    """Register a user via the API and return their access token."""
+    resp = client.post("/auth/register", json={"name": name, "email": email, "password": password})
+    return resp.json()["access_token"]
+
+
+@pytest.fixture(name="auth_client")
+def auth_client_fixture(client: TestClient) -> TestClient:
+    """A client authenticated as a regular registered user (owner@test.com)."""
+    token = register_token(client, "owner@test.com", "Owner")
+    client.headers.update({"Authorization": f"Bearer {token}"})
+    return client
+
+
+@pytest.fixture(name="auth_headers")
+def auth_headers_fixture(client: TestClient) -> dict[str, str]:
+    """Authorization header for a freshly registered user."""
+    token = register_token(client, "owner@test.com", "Owner")
+    return {"Authorization": f"Bearer {token}"}

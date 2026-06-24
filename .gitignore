@@ -3,3 +3,6 @@ data/
 .idea/
 __pycache__/
 *.pyc
+.env
+*.mp4
+frontend/assets/avatars/

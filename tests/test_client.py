@@ -34,7 +34,7 @@ def test_list_restaurants_returns_list():
     ]
     with patch("frontend.client.httpx.Client") as MockClient:
         MockClient.return_value.get.return_value = _mock_response(sample)
-        result = list_restaurants()
+        result = list_restaurants("tok")
 
     assert len(result) == 2
     assert result[0]["name"] == "Pasta Roma"
@@ -43,7 +43,7 @@ def test_list_restaurants_returns_list():
 def test_list_restaurants_empty():
     with patch("frontend.client.httpx.Client") as MockClient:
         MockClient.return_value.get.return_value = _mock_response([])
-        result = list_restaurants()
+        result = list_restaurants("tok")
 
     assert result == []
 
@@ -54,7 +54,7 @@ def test_create_restaurant_returns_new_entry():
     payload = {"id": 3, "name": "Le Bistro", "cuisine": "French", "city": "Tel Aviv", "rating": 5, "status": "Want to Go"}
     with patch("frontend.client.httpx.Client") as MockClient:
         MockClient.return_value.post.return_value = _mock_response(payload, status_code=201)
-        result = create_restaurant(name="Le Bistro", cuisine="French", city="Tel Aviv", rating=5, status="Want to Go")
+        result = create_restaurant("tok", name="Le Bistro", cuisine="French", city="Tel Aviv", rating=5, status="Want to Go")
 
     assert result["id"] == 3
     assert result["cuisine"] == "French"
@@ -65,7 +65,7 @@ def test_create_restaurant_sends_correct_body():
     with patch("frontend.client.httpx.Client") as MockClient:
         mock_post = MockClient.return_value.post
         mock_post.return_value = _mock_response(payload, status_code=201)
-        create_restaurant(name="Taco Fiesta", cuisine="Mexican", city="Eilat", rating=3, status="Want to Go")
+        create_restaurant("tok", name="Taco Fiesta", cuisine="Mexican", city="Eilat", rating=3, status="Want to Go")
 
     _, kwargs = mock_post.call_args
     body = kwargs["json"]
@@ -80,6 +80,7 @@ def test_delete_restaurant_calls_correct_endpoint():
         mock_delete = MockClient.return_value.delete
         mock_delete.return_value = _mock_response(None, status_code=204)
         mock_delete.return_value.raise_for_status.return_value = None
-        delete_restaurant(7)
+        delete_restaurant(7, "tok")
 
-    mock_delete.assert_called_once_with("/restaurants/7")
+    args, _ = mock_delete.call_args
+    assert args[0] == "/restaurants/7"

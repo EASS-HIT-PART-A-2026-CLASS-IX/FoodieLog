@@ -1,0 +1,55 @@
+services:
+  api:
+    build: .
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - FOODIE_REDIS_URL=redis://redis:6379/0
+      - FOODIE_RATE_LIMIT_PER_MINUTE=20
+      - FOODIE_JWT_SECRET=compose-secret-change-me
+      - FOODIE_DATABASE_URL=sqlite:///./data/foodie.db
+      - FOODIE_API_BASE_URL=http://api:8000
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build: .
+    command: uv run arq app.worker.WorkerSettings
+    environment:
+      - FOODIE_REDIS_URL=redis://redis:6379/0
+      - FOODIE_DATABASE_URL=sqlite:///./data/foodie.db
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  frontend:
+    build: .
+    command: uv run streamlit run frontend/dashboard.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      - FOODIE_API_BASE_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
