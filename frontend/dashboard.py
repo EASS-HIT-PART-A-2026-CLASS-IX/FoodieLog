@@ -199,89 +199,6 @@ section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
 </style>
 """, unsafe_allow_html=True)
 
-if st.session_state.get("theme") == "dark":
-    st.markdown("""
-<style>
-:root {
-  --bg: #16130F; --surface: #211D18; --surface2: #2A251F;
-  --border: #3A332C; --text: #F5F1EB; --muted: #B8AFA4; --accent-bg: #2A1C12;
-}
-/* App shell */
-.stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main { background: #16130F !important; }
-[data-testid="stHeader"] { background: #16130F !important; }
-[data-testid="stToolbar"] { color: #B8AFA4 !important; }
-.main .block-container, [data-testid="block-container"] { background: transparent !important; }
-
-/* Sidebar */
-section[data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child {
-  background: #211D18 !important; border-right: 1px solid #3A332C !important;
-}
-
-/* Text */
-body, p, span, label, li, h1,h2,h3,h4,h5,h6,
-.stMarkdown, .stMarkdown p, .section-head, .su-name, .sb-name,
-[data-testid="stWidgetLabel"] label, [data-testid="stWidgetLabel"] p,
-[data-testid="stMarkdownContainer"] p {
-  color: #F5F1EB !important;
-}
-.section-sub, .sidebar-label, [data-testid="stMetricLabel"],
-[data-testid="stCaptionContainer"], .stCaption, small { color: #B8AFA4 !important; }
-
-/* Cards / surfaces */
-[data-testid="stMetric"] { background: #211D18 !important; border-color: #3A332C !important; }
-[data-testid="stExpander"] { background: #211D18 !important; border-color: #3A332C !important; }
-[data-testid="stExpander"] summary { background: #211D18 !important; color: #F5F1EB !important; }
-[data-testid="stExpander"] summary:hover { background: #2A251F !important; }
-[data-testid="stMetricValue"] { color: #FB923C !important; }
-
-/* Inputs / selects / textareas */
-.stTextInput input, .stTextArea textarea, .stNumberInput input,
-[data-baseweb="input"], [data-baseweb="base-input"], [data-baseweb="textarea"] {
-  background: #16130F !important; color: #F5F1EB !important; border-color: #3A332C !important;
-}
-[data-baseweb="select"] > div, [data-baseweb="select"] div[role="button"] {
-  background: #16130F !important; color: #F5F1EB !important; border-color: #3A332C !important;
-}
-[data-baseweb="popover"], [data-baseweb="menu"], [role="listbox"] {
-  background: #211D18 !important; color: #F5F1EB !important;
-}
-[role="option"] { background: #211D18 !important; color: #F5F1EB !important; }
-[role="option"]:hover { background: #2A251F !important; }
-/* multiselect chips */
-[data-baseweb="tag"] { background: #2A1C12 !important; color: #FB923C !important; }
-
-/* Slider track */
-[data-testid="stSlider"] [data-baseweb="slider"] div { color: #F5F1EB !important; }
-
-/* File uploader */
-[data-testid="stFileUploaderDropzone"] { background: #16130F !important; border-color: #3A332C !important; }
-[data-testid="stFileUploaderDropzone"] * { color: #B8AFA4 !important; }
-
-/* Dataframe / data editor */
-[data-testid="stDataFrame"], [data-testid="stDataEditor"] {
-  background: #211D18 !important; border-color: #3A332C !important;
-}
-
-/* Hero + sidebar user pill */
-.hero { background: linear-gradient(135deg, #2A251F, #16130F) !important; border-color: #3A332C !important; }
-.hero p { color: #B8AFA4 !important; }
-.sidebar-user { background: rgba(234,88,12,0.16) !important; border-color: rgba(234,88,12,0.35) !important; }
-
-/* Buttons */
-hr { border-color: #3A332C !important; }
-section[data-testid="stSidebar"] .stButton > button { color: #F5F1EB !important; }
-.stButton > button:not([kind="primary"]) {
-  background: #2A251F !important; color: #F5F1EB !important; border-color: #3A332C !important;
-}
-
-/* Tabs (login) */
-[data-testid="stTabs"] [data-baseweb="tab"] { color: #B8AFA4 !important; }
-
-/* Download / misc */
-[data-testid="stDownloadButton"] button { background: #2A251F !important; color: #F5F1EB !important; border-color: #3A332C !important; }
-</style>
-""", unsafe_allow_html=True)
-
 # ── Login page (shown when not authenticated) ─────────────────────────────────
 
 if "token" not in st.session_state:
@@ -479,12 +396,6 @@ with st.sidebar:
             st.rerun()
 
     st.divider()
-    _dark = st.toggle("🌙 Dark mode", value=st.session_state.get("theme") == "dark")
-    _new_theme = "dark" if _dark else "light"
-    if _new_theme != st.session_state.get("theme", "light"):
-        st.session_state["theme"] = _new_theme
-        st.rerun()
-
     if st.button("🔄  Refresh data", key="nav_refresh", use_container_width=True):
         refresh()
     if st.button("🚪  Sign Out", key="nav_signout", use_container_width=True):
@@ -596,14 +507,15 @@ def section_restaurants():
         _restaurants_editor(filtered)
     else:
         display = filtered.copy()
+        display.insert(0, "#", range(1, len(display) + 1))
         display["fav"] = display["is_favorite"].apply(lambda b: "⭐" if b else "")
         display["rating"] = display["rating"].apply(lambda r: "⭐" * int(r))
         display["price"] = display["price_level"].apply(_price_to_label)
         st.dataframe(
-            display[["id", "fav", "name", "cuisine", "city", "rating", "price", "status", "tags", "notes"]],
+            display[["#", "fav", "name", "cuisine", "city", "rating", "price", "status", "tags", "notes"]],
             use_container_width=True, hide_index=True,
             column_config={
-                "id":      st.column_config.NumberColumn("ID", width="small"),
+                "#":       st.column_config.NumberColumn("#", width="small"),
                 "fav":     st.column_config.TextColumn("★", width="small"),
                 "name":    st.column_config.TextColumn("Name", width="medium"),
                 "cuisine": st.column_config.TextColumn("Cuisine", width="small"),
@@ -622,7 +534,11 @@ def section_restaurants():
 
 
 def _restaurants_editor(filtered):
-    """Inline-editable grid. Diffs against the original rows and PUTs changed ones."""
+    """Inline-editable grid. Diffs against the original rows and PUTs changed ones.
+
+    The real database id is kept as the (hidden) DataFrame index so the UI
+    never shows a raw cross-user id — only a per-user row number.
+    """
     st.caption("Edit cells directly, then click **Save changes**.")
     editable = filtered.copy()
     editable["is_favorite"] = editable["is_favorite"].astype(bool)
@@ -630,12 +546,14 @@ def _restaurants_editor(filtered):
         editable["price_level"] = editable["price_level"].apply(
             lambda v: int(v) if pd.notna(v) else None
         )
-    cols = ["id", "name", "cuisine", "city", "rating", "status", "price_level", "is_favorite", "tags", "notes"]
+    editable.insert(0, "#", range(1, len(editable) + 1))
+    editable = editable.set_index("id")
+    cols = ["#", "name", "cuisine", "city", "rating", "status", "price_level", "is_favorite", "tags", "notes"]
     edited = st.data_editor(
         editable[cols],
         use_container_width=True, hide_index=True, key="rest_data_editor",
         column_config={
-            "id":          st.column_config.NumberColumn("ID", disabled=True, width="small"),
+            "#":           st.column_config.NumberColumn("#", disabled=True, width="small"),
             "name":        st.column_config.TextColumn("Name", required=True),
             "cuisine":     st.column_config.TextColumn("Cuisine", required=True),
             "city":        st.column_config.TextColumn("City", required=True),
@@ -653,8 +571,8 @@ def _restaurants_editor(filtered):
         changed = 0
         errors = []
         fields = ["name", "cuisine", "city", "rating", "status", "price_level", "is_favorite", "tags", "notes"]
-        for _, row in edited.iterrows():
-            rid = int(row["id"])
+        for rid, row in edited.iterrows():
+            rid = int(rid)
             orig = original.get(rid)
             if orig is None:
                 continue
@@ -974,4 +892,4 @@ _RENDER = {
 _RENDER.get(section, section_dashboard)()
 
 # Floating AI assistant — bottom-right button + right-side chat drawer
-_ai_widget.render(st.session_state["token"], st.session_state.get("theme", "light"))
+_ai_widget.render(st.session_state["token"])

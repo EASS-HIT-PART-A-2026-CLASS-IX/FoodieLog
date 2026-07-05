@@ -60,26 +60,10 @@ _CSS = """
 """
 
 
-_CSS_DARK = """
-#fl-drawer{background:#211D18 !important;border-left-color:#3A332C !important;}
-#fl-hdr{border-bottom-color:#3A332C !important;background:linear-gradient(135deg,rgba(234,88,12,.14),transparent) !important;}
-#fl-hdr-title{color:#F5F1EB !important;}
-#fl-close{background:#2A251F !important;border-color:#3A332C !important;color:#B8AFA4 !important;}
-#fl-pills{border-bottom-color:#3A332C !important;}
-.fl-pill{background:#2A1C12 !important;border-color:rgba(234,88,12,.4) !important;color:#FB923C !important;}
-#fl-msgs::-webkit-scrollbar-thumb{background:#3A332C !important;}
-.fl-bbl.ai{background:#2A251F !important;border-color:#3A332C !important;color:#F5F1EB !important;}
-.fl-lbl.ai{color:#A8A29E !important;}
-#fl-input-bar{border-top-color:#3A332C !important;}
-#fl-input{background:#16130F !important;border-color:#3A332C !important;color:#F5F1EB !important;}
-"""
-
-
-def render(token: str, theme: str = "light") -> None:
+def render(token: str) -> None:
     """Inject the AI floating widget into the Streamlit parent window."""
     safe_token = token.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
-    base = _CSS + (_CSS_DARK if theme == "dark" else "")
-    css = base.replace("`", "\\`").replace("${", "\\${")
+    css = _CSS.replace("`", "\\`").replace("${", "\\${")
 
     components.html(f"""<script>
 (function(){{
