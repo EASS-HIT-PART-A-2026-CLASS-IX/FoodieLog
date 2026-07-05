@@ -220,6 +220,10 @@ FoodieLog/
     └── test_client.py
 ```
 
+## Demo Recording
+
+[Watch the video walkthrough](https://www.youtube.com/watch?v=TxcUH7Cwzx8)
+
 ## AI Assistance
 
 This project was built with the help of **Claude Code** (Anthropic) as a pair-programming assistant — scaffolding routers, models, and tests, then adapting them to the restaurant domain. Every generated change was run and reviewed locally before committing: the full test suite must pass, the Docker stack must start cleanly, and `scripts/demo.sh` must run end-to-end.
